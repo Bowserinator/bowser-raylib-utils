@@ -3,10 +3,14 @@
 
 #include "raymath.h"
 #include <iostream>
+#include <functional>
 #include <cmath>
 
+#ifndef BOWSER_UTIL_ARITHMETIC_CONCEPT
+#define BOWSER_UTIL_ARITHMETIC_CONCEPT
 template <class T>
 concept arithmetic = std::integral<T> or std::floating_point<T>;
+#endif
 
 namespace bowser_util {
     template <class T> requires arithmetic<T>
@@ -33,6 +37,20 @@ namespace bowser_util {
                 static_cast<float>(x),
                 static_cast<float>(y)
             };
+        }
+
+        template <class U> requires arithmetic<U>
+        operator _baseVec2<U>() const {
+            return _baseVec2<U>(
+                static_cast<U>(x),
+                static_cast<U>(y)
+            );
+        }
+
+        bool almostEquals(const _baseVec2<T> &other) const {
+            return
+                ((fabsf(x - other.x)) <= (0.000001f * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(other.x))))) &&
+                ((fabsf(y - other.y)) <= (0.000001f * fmaxf(1.0f, fmaxf(fabsf(y), fabsf(other.y)))));
         }
 
         // Magnitude and magnitude squared of vector, will overflow
@@ -65,14 +83,18 @@ namespace bowser_util {
         // Normalize self to unit length
         template <class U=T> requires std::floating_point<U>
         _baseVec2<U> normalize() const {
-            float len = length();
-            return _baseVec2<T>(x / len, y / len);
+            float len = length() + 0.000001f; // Avoid division by zero
+            return _baseVec2<U>(x / len, y / len);
+        }
+
+        _baseVec2<T> applyOp(std::function<T(T)> op) const {
+            return _baseVec2<T>(op(x), op(y));
         }
 
         // Transform by matrix (4x4 transformation, assumes z = 0)
         template <class U=T> requires std::floating_point<U>
         _baseVec2<U> transform(const Matrix &mat) const {
-            return _baseVec2<T>(
+            return _baseVec2<U>(
                 mat.m0 * x + mat.m4 * y + mat.m12,
                 mat.m1 * x + mat.m5 * y + mat.m13
             );
@@ -309,7 +331,7 @@ namespace bowser_util {
         return lhs;
     }
 
-     template <class S, class U> requires (std::integral<S> and std::integral<U>)
+    template <class S, class U> requires (std::integral<S> and std::integral<U>)
     inline _baseVec2<U> operator<<(_baseVec2<U> lhs, const S &rhs) {
         lhs <<= rhs;
         return lhs;
