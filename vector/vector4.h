@@ -1,5 +1,5 @@
-#ifndef BOWSER_UTIL_VECTOR_VECTOR3_H
-#define BOWSER_UTIL_VECTOR_VECTOR3_H
+#ifndef BOWSER_UTIL_VECTOR_VECTOR4_H
+#define BOWSER_UTIL_VECTOR_VECTOR4_H
 
 #include "raymath.h"
 #include <iostream>
