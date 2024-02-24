@@ -6,6 +6,7 @@
 namespace bowser_util {
     class Spinlock {
     public:
+        Spinlock(const Spinlock &) = delete;
         Spinlock& operator=(const Spinlock&) = delete;
 
         inline void lock() { while (_lock.test_and_set(std::memory_order_acquire)) { /* Spin lock */ } }

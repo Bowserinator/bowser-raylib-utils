@@ -27,7 +27,7 @@ public:
     Bitset8(): data(0) {}
     Bitset8(uint8_t data): data(data) {}
 
-    std::string to_string() {
+    std::string to_string() const {
         std::string out(size(), ' ');
         for (int i = 0; i < size(); i++)
             out[i] = (*this)[i] ? '1' : '0';
@@ -63,7 +63,6 @@ public:
     void set(std::size_t pos) { data |= 1 << pos; }
     void unset() { data = 0; }
     void unset(std::size_t pos) { data &= ~(1 << pos); }
-    void reset() { reset(); }
 
     operator uint8_t() const { return data; }
 

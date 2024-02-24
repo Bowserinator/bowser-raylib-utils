@@ -139,7 +139,7 @@ namespace bowser_util {
             return Vector3RotateByQuaternion(*this, q);
         }
 
-        _baseVec3<T> rotateByQuaternion(const _baseVec3<T> &axis, float angle) const {
+        _baseVec3<T> rotateByAxisAngle(const _baseVec3<T> &axis, float angle) const {
             return Vector3RotateByAxisAngle(*this, axis, angle);
         }
 
