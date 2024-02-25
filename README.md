@@ -11,8 +11,9 @@ A collection of utils for the Raylib game library. Header only so just clone thi
 │   ├── persistent_buffer.h - Cyclic queue of persistently mapped buffers for fast transfers from/to GPU
 │   ├── spinlock.h          - Atomic spinlock, similar to std::mutex but faster for short wait times
 │   └── ubo_writer.h        - Helper to write to uniform block objects (computes offsets for you)
-├── math.h   - Generic math functions, should take any numeric / float type
-└── morton.h - Morton codes (currently only for 8 bit values)
+├── graphics.h  - Graphics helpers
+├── math.h      - Generic math functions, should take any numeric / float type
+└── morton.h    - Morton codes (currently only for 8 bit values)
 ```
 
 # Types:
@@ -269,13 +270,14 @@ Other notes:
 ```cpp
 // Enum for buffer usage hint, can heavily impact performance depending on your GPU
 // These are just *hints* and are not enforced, but violating (ie writing to a read-only buffer)
-// can incur a performance penalty
+// can incur a performance penalty. Setting a buffer to READ_AND_WRITE can also
+// incur a performance penalty on some systems.
 
 // NONE:           Unset value, do not use
 // READ:           All buffers are meant to be read-only
 // WRITE:          All buffers are meant to be write-only
 // READ_AND_WRITE: All buffers are meant to be readable and writeable, not recommended
-// WRITE_ALT_READ: Buffer 0 is writable, buffer 1 is readable, buffer2 is writeable, etc...
+// WRITE_ALT_READ: Buffer 0 is writeable, buffer 1 is readable, buffer2 is writeable, etc...
 // READ_ALT_WRITE: Buffer 0 is readable, buffer 1 is writeable, buffer2 is readable, etc...
 enum class PBFlags { NONE, READ, WRITE, READ_AND_WRITE, WRITE_ALT_READ, READ_ALT_WRITE };
 
@@ -315,7 +317,7 @@ void ** ptrs = nullptr;
 
 ## Spinlock
 
-A bootleg version of `std::mutex` that uses an atomic flag. Can be faster if ur wait times are very short (so the OS doesn't put the thread to sleep while waiting, which can incur an overhead), but will use up your CPU since it's basically `while(true){}` while it's waiting.
+A bootleg version of `std::mutex` that uses an atomic flag. Can be faster if your wait times are very short (so the OS doesn't put the thread to sleep while waiting, which can incur an overhead), but will use up your CPU since it's basically `while(true){}` while it's waiting.
 
 Note: spinlocks cannot be copied.
 
@@ -403,6 +405,25 @@ void swap(UBOBlockWriter &other); // Swap with another writer
 ```
 
 # Other:
+
+## Graphics
+
+```cpp
+// Overloaded setShaderValue functions
+void setShaderValue(const Shader &shaderId, int propertyLoc, Vector2 vec);
+void setShaderValue(const Shader &shaderId, int propertyLoc, Vector3 vec);
+void setShaderValue(const Shader &shaderId, int propertyLoc, Vector4 vec);
+void setShaderValue(const Shader &shaderId, int propertyLoc, ivec2 vec);
+void setShaderValue(const Shader &shaderId, int propertyLoc, ivec3 vec);
+void setShaderValue(const Shader &shaderId, int propertyLoc, ivec4 vec);
+void setShaderValue(const Shader &shaderId, int propertyLoc, float val);
+void setShaderValue(const Shader &shaderId, int propertyLoc, int val);
+
+// Draw render texture at location (origin) with size
+// Default size is the render texture's size
+void drawRenderTexture(const RenderTexture2D &tex, const Vector2 origin, const Vector2 size);
+void drawRenderTexture(const RenderTexture2D &tex);
+```
 
 ## Math
 
