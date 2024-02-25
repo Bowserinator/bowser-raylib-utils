@@ -1,4 +1,4 @@
-# Bowser's Raylib Utils
+# Bowser's Raylib / OpenGL Utils
 
 A collection of utils for the Raylib game library. Header only so just clone this repo into a folder and include the files you want, no other installation needed! Everything is under the `bowser_util` namespace.
 
@@ -55,6 +55,7 @@ vec2 rotate(float angle);                        // Get this vector rotated CW a
 vec2 rotate(float angle, const vec2 &origin);    // Get this vector rotated CW around given origin by angle (radians)
 vec2 clamp(const vec2 &v1, const vec2 &v2);      // Clamp all values between v1 and v2
 vec2 clamp(const T a, const T b);                // Clamp all components between a and b
+vec2 clampMagnitude(const T a, const T b);       // Clamp magnitude between a and b
 vec2 applyOp(std::function<T(T)> op);            // Return vec2(op(x), op(y))
 
 // These are for floating point vectors only and return a modified copy
@@ -84,6 +85,7 @@ float angle(const vec3 &other);                  // Angle with other vector
 vec3 reflect(const vec3 &normal);                // Return this vector reflected across a surface given its normal
 vec3 clamp(const vec3 &v1, const vec3 &v2);      // Clamp all values between v1 and v2
 vec3 clamp(const T a, const T b);                // Clamp all components between a and b
+vec3 clampMagnitude(const T a, const T b);       // Clamp magnitude between a and b
 vec3 applyOp(std::function<T(T)> op);            // Return vec3(op(x), op(y), op(z))
 vec3 cross(const vec3 &other);                   // Cross product with other
 
@@ -123,6 +125,7 @@ float angle(const vec4 &other);                  // Angle with other vector
 vec4 reflect(const vec4 &normal);                // Return this vector reflected across a surface given its normal
 vec4 clamp(const vec4 &v1, const vec4 &v2);      // Clamp all values between v1 and v2
 vec4 clamp(const T a, const T b);                // Clamp all components between a and b
+vec4 clampMagnitude(const T a, const T b);       // Clamp magnitude between a and b
 vec4 applyOp(std::function<T(T)> op);            // Return vec4(op(x), op(y), op(z), op(w))
 
 // These are for floating point vectors only and return a modified copy
@@ -236,7 +239,10 @@ combines the above two examples:
 ```cpp
 // Init:
 unsigned int my_array[N];
-PersistentBuffer<3> myPersistentlyMappedBuffers(GL_SHADER_STORAGE_BUFFER, sizeof(my_array), PBFlags::WRITE_ALT_READ);
+
+// Since we use two buffers at a time (one for writing and one for reading)
+// we should have a even number of buffers
+PersistentBuffer<6> myPersistentlyMappedBuffers(GL_SHADER_STORAGE_BUFFER, sizeof(my_array), PBFlags::WRITE_ALT_READ);
 
 // In your game loop
 myPersistentlyMappedBuffers.wait(0); // Wait for current buffer transfer to finish if it hasn't already
@@ -252,7 +258,8 @@ rlComputeShaderDispatch(X_WORKGROUPS, Y_WORKGROUPS, Z_WORKGROUPS);
 rlDisableShader();
 myPersistentlyMappedBuffers.lock(1); // Flag 1 that download is starting
 
-// Do some other stuff in the meantime
+// Do some other stuff in the meantime...
+
 myPersistentlyMappedBuffers.wait(1); // Wait until 1 has finished downloading
 std::copy( // Copy output to my_array
     &myPersistentlyMappedBuffers.get<unsigned int>(1)[0],

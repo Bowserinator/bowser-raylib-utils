@@ -162,6 +162,14 @@ namespace bowser_util {
             );
         }
 
+        // Clamp magnitude
+        _baseVec4<T> clampMagnitude(const T a, const T b) const {
+            float len = length();
+            if (len >= a && len <= b) return *this;
+            float lenClamped = std::max(a, std::min(b, len));
+            return (*this) / len * lenClamped;
+        }
+
 
         friend inline bool operator==(const _baseVec4<T> &lhs, const _baseVec4<T> &rhs) {
             return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.w == rhs.w;
@@ -178,7 +186,21 @@ namespace bowser_util {
             return lhs;
         }
 
+        template <class S> requires arithmetic<S>
+        friend inline _baseVec4<T> &operator+=(_baseVec4<T> &lhs, const S rhs) {
+            lhs.x += rhs;
+            lhs.y += rhs;
+            lhs.z += rhs;
+            lhs.w += rhs;
+            return lhs;
+        }
+
         friend inline _baseVec4<T> operator+(_baseVec4<T> lhs, const _baseVec4<T> &rhs) {
+            lhs += rhs;
+            return lhs;
+        }
+        template <class S> requires arithmetic<S>
+        friend inline _baseVec4<T> operator+(_baseVec4<T> lhs, const S rhs) {
             lhs += rhs;
             return lhs;
         }
@@ -191,7 +213,22 @@ namespace bowser_util {
             return lhs;
         }
 
+        template <class S> requires arithmetic<S>
+        friend inline _baseVec4<T> &operator-=(_baseVec4<T> &lhs, const S rhs) {
+            lhs.x -= rhs;
+            lhs.y -= rhs;
+            lhs.z -= rhs;
+            lhs.w -= rhs;
+            return lhs;
+        }
+
         friend inline _baseVec4<T> operator-(_baseVec4<T> lhs, const _baseVec4<T> &rhs) {
+            lhs -= rhs;
+            return lhs;
+        }
+
+        template <class S> requires arithmetic<S>
+        friend inline _baseVec4<T> operator-(_baseVec4<T> lhs, const S rhs) {
             lhs -= rhs;
             return lhs;
         }
@@ -206,7 +243,21 @@ namespace bowser_util {
         }
 
         template <class S> requires arithmetic<S>
+        friend inline _baseVec4<T> &operator*=(_baseVec4<T> &lhs, const _baseVec4<S> &rhs) {
+            lhs.x = static_cast<T>(lhs.x * rhs.x);
+            lhs.y = static_cast<T>(lhs.y * rhs.y);
+            lhs.z = static_cast<T>(lhs.z * rhs.z);
+            lhs.w = static_cast<T>(lhs.w * rhs.w);
+            return lhs;
+        }
+
+        template <class S> requires arithmetic<S>
         friend inline _baseVec4<T> operator*(_baseVec4<T> lhs, const S rhs) {
+            lhs *= rhs;
+            return lhs;
+        }
+        template <class S> requires arithmetic<S>
+        friend inline _baseVec4<T> operator*(_baseVec4<T> lhs, const _baseVec4<S> &rhs) {
             lhs *= rhs;
             return lhs;
         }
