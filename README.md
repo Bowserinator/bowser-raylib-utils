@@ -174,27 +174,7 @@ one buffer, next frame you can cycle to the next one and write to that so you do
 first buffer to finish uploading. Usually you have three buffers (one for CPU, driver, and GPU) to triple-buffer
 the upload.
 
-Because it is async, you will have to handle the synchronization yourself. This class provides some utils for that.
-Essentially, the jist is:
-
-```cpp
-// Loop 1:
-waitForBuffer0();
-writeOrReadToBuffer0();
-lockBuffer0();
-
-// Loop 2:
-waitForBuffer1();
-writeOrReadToBuffer1();
-lockBuffer1();
-
-// Loop 3:
-waitForBuffer2();
-writeOrReadToBuffer2();
-lockBuffer2();
-
-// Loop 4 is the same as loop 1
-```
+Because it is async, you will have to handle the synchronization yourself. This class provides some utils for that (see examples below).
 
 ### Usage examples:
 
@@ -365,10 +345,102 @@ void unlock();   // Release the lock
 unique_spinlock(Spinlock &lock);
 ```
 
-## UboWriter
+## UBOBlockWriter
+
+**MUST BE USED AFTER OPENGL CONTEXT IS INITIALIZED**
+
+Write to a uniform buffer object block. Automatically fetches offsets when writing to a temporary buffer
+that is uploaded. Note: fetching offsets is done whenever `write_member` is called and it
+takes a few to a few hundred microseconds so do not use this if you are updating the uniform data a lot
+(don't do that in general).
+
+Why does this exist? Because the `std430` memory layout can't be used by uniform blocks, and `std140`
+has annoying alignment rules that can easily quadruple or more the memory requirements for uploading. So this will work
+for the `shared` memory layout as well, which *should* ensure parity between the shader memory layout and the
+struct layout in C.
+
+(*I say should but this does not necessarily apply to arrays. Like `std140`, all array elements are 16 bytes regardless
+of their type on some cards (*cough* AMD) even with the `shared` layout, which breaks this UBOWriter*. So **don't use arrays with this**
+if you care about supporting all GPUs).
+
+Example usage:
+
+```cpp
+// Example shader code:
+// layout(shared, binding = 0) uniform NameOfTheUniformBlock {
+//    int x;
+//    float y;
+//    bool z;
+// };
+
+// Do this after OpenGL INIT!
+auto writer = UBOWriter(myShaderId, uboBufferId, "NameOfTheUniformBlock");
+writer.write_member("x", 123);
+writer.write_member("y", 1.23f); // Note: may not implicitly cast double->float so be careful
+writer.write_member("z", 1);
+writer.upload(); // Upload changes to the uniform buffer
+```
+
+Also the UBOBlockWriter can't be copied, only moved.
+
+```cpp
+// Construct:
+// program          = shaderId
+// UBOid            = uniform buffer object ID, ie from genBuffers
+// uniformBlockName = name of the block in the shader program, see example above
+UBOBlockWriter(const GLuint program, const GLuint UBOId, const char * uniformBlockName);
+
+// Memcopy data chunk of size *size* (in bytes) from value pointer to the memberName
+// There is no size check, thread carefully. Mostly used for dynamically allocated memory
+template <class T> void write_member(const char * memberName, const T* value, std::size_t size);
+
+// Write a value to memberName, assumes value is sizeof(value) bytes big
+template <class T> void write_member(const char * memberName, const T &value);
+
+void upload();                    // Upload changes to the data array to the GPU, will bind the UBO buffer
+GLint size();                     // Returns total size of the UBO buffer in bytes (including padding)
+void swap(UBOBlockWriter &other); // Swap with another writer
+```
 
 # Other:
 
 ## Math
 
+`T` here is any integer or floating type.
+
+```cpp
+
+T clamp(T val, T min, T max);                                 // Clamp val between [min, max] inclusive
+T lerp(T start, T end, float amount);                         // Lerp in a range
+T normalizeInRange(T value, T start, T end);                  // Remap value in range to a value in [0, 1]
+T remap(T value, T start, T end, T targetStart, T targetEnd); // Remap value in [start, end] to new range [targetStart, targetEnd]
+T wrap(T value, T min, T max);                                // Wrap a value in a range (similar to % but with float support)
+int sign(T a);                                                // Returns 0 if a = 0, -1 if a < 0, 1 if a > 0
+float rad2deg(float rad);                                     // radians -> degrees
+float deg2rad(float deg);                                     // degrees -> radians
+
+// In place modifies a transformation matrix (assuming a product of translation rotation scaling, NO SKEW)
+// so it only contains the rotation matrix (if the matrix did contain skew, resultant matrix will also contain skew)
+// Matrix is assumed to be used like T * pos instead of pos * T (so the translation data is in the last row)
+void reduce_to_rotation(Matrix &mat);
+```
+
 ## Morton.h
+
+Morton encoding helper via lookup tables.
+
+```cpp
+namespace Morton {
+    // 256 pre-transformed + shifted values for each byte for each pos
+    // so final result is just X_SHIFTS[x] | Y_SHIFTS[y] | Z_SHIFTS[z]
+    uint32_t X_SHIFTS[];
+    uint32_t Y_SHIFTS[];
+    uint32_t Z_SHIFTS[];
+}
+
+// Generate morton code for 3 8-bit unsigned coordinate values
+// Morton code is xyzxyzxyz... (bits interweaved, MSB first)
+// For example, if (x,y,z) = (1,2,3) the morton code would be (in binary)
+// 000 ... 011 101 = 29
+uint32_t morton_decode8(uint8_t x, uint8_t y, uint8_t z);
+```
