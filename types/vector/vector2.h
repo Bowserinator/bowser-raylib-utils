@@ -1,7 +1,7 @@
 #ifndef BOWSER_UTIL_VECTOR_VECTOR2_H
 #define BOWSER_UTIL_VECTOR_VECTOR2_H
 
-#include "raymath.h"
+#include "raylib.h"
 #include <iostream>
 #include <functional>
 #include <cmath>
@@ -17,6 +17,7 @@ namespace bowser_util {
     struct _baseVec2 {
         T x, y;
 
+        _baseVec2(): x(0), y(0) {}
         _baseVec2(T x, T y): x(x), y(y) {}
         _baseVec2(T val): x(val), y(val) {}
         _baseVec2(const Vector2 &other): x(static_cast<T>(other.x)), y(static_cast<T>(other.y)) {}

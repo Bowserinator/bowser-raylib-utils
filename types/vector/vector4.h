@@ -1,7 +1,7 @@
 #ifndef BOWSER_UTIL_VECTOR_VECTOR4_H
 #define BOWSER_UTIL_VECTOR_VECTOR4_H
 
-#include "raymath.h"
+#include "raylib.h"
 #include <iostream>
 #include <cmath>
 #include <functional>
@@ -17,6 +17,7 @@ namespace bowser_util {
     struct _baseVec4 {
         T x, y, z, w;
 
+        _baseVec4(): x(0), y(0), z(0), w(0) {}
         _baseVec4(T x, T y, T z, T w): x(x), y(y), z(z), w(w) {}
         _baseVec4(T val): x(val), y(val), z(val), w(val) {}
         _baseVec4(const Vector4 &other):

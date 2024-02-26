@@ -1,7 +1,7 @@
 #ifndef BOWSER_UTIL_VECTOR_VECTOR3_H
 #define BOWSER_UTIL_VECTOR_VECTOR3_H
 
-#include "raymath.h"
+#include "raylib.h"
 #include <iostream>
 #include <cmath>
 #include <functional>
@@ -17,6 +17,7 @@ namespace bowser_util {
     struct _baseVec3 {
         T x, y, z;
 
+        _baseVec3(): x(0), y(0), z(0) {}
         _baseVec3(T x, T y, T z): x(x), y(y), z(z) {}
         _baseVec3(T val): x(val), y(val), z(val) {}
         _baseVec3(const Vector3 &other):

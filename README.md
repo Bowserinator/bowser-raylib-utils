@@ -168,6 +168,35 @@ std::size_t size();                       // Always returns 8 since it's 8 bits
 myBitset8[i].flip();                      // Flips the ith bit of bitset (implemented in reference)
 ```
 
+## Easing
+
+Easing function util. Basically if you have a function, ie `pos = origin + t * (dest - origin)`, then to ease it just do
+`pos = origin + easingFunction(t) * (dest - origin)` (wrap time or whatever variable you're easing). Input should be in 
+the range `0-1`, output will be around `0-1` but some easing functions can temporarily exceed that range.
+
+```cpp
+float easeInSine(float t);
+float easeOutSine(float t);
+float easeInOutSine(float t);
+
+float easeInCubic(float t);
+float easeOutCubic(float t);
+float easeInOutCubic(float t);
+
+float easeInExp(float t, float lambda = 10);
+float easeOutExp(float t, float lambda = 10);
+float easeInOutExp(float t, float lambda = 10);
+
+float easeInBounce(float t);
+float easeOutBounce(float t);
+float easeInOutBounce(float t);
+
+float easeInBack(float t);
+float easeOutBack(float t);
+float easeInOutBack(float t);
+```
+
+
 ## Persistent Buffer
 
 **MUST BE CONSTRUCTED AFTER OPENGL CONTEXT IS INITIALIZED (default constructor is fine)**
