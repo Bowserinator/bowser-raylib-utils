@@ -14,8 +14,8 @@ namespace bowser_util {
     inline float easeOutCubic(float t) { return 1 - (1-t)*(1-t)*(1-t); }
     inline float easeInOutCubic(float t) { return t < 0.5 ? 4*t*t*t : 1 - std::pow(-2*t + 2, 3) / 2; }
 
-    inline float easeInExp(float t, float lambda = 10) { t == 0 ? 0 : std::pow(2, lambda * (t - 1)); }
-    inline float easeOutExp(float t, float lambda = 10) { t == 1 ? 1 : 1 - std::pow(2, -lambda * t); }
+    inline float easeInExp(float t, float lambda = 10) { return t == 0 ? 0 : std::pow(2, lambda * (t - 1)); }
+    inline float easeOutExp(float t, float lambda = 10) { return t == 1 ? 1 : 1 - std::pow(2, -lambda * t); }
     inline float easeInOutExp(float t, float lambda = 10) {
         if (t == 0) return 0;
         if (t == 1) return 1;
@@ -24,7 +24,6 @@ namespace bowser_util {
             2 - std::pow(2, -2 * lambda * t + lambda) / 2;
     }
 
-    inline float easeInBounce(float t) { return 1- easeOutBounce(1 - t); }
     inline float easeOutBounce(float t) {
         constexpr float n1 = 7.5625;
         constexpr float d1 = 2.75;
@@ -38,6 +37,7 @@ namespace bowser_util {
         else 
             return n1 * (t -= 2.625 / d1) * t + 0.984375;
     }
+    inline float easeInBounce(float t) { return 1 - easeOutBounce(1 - t); }
     inline float easeInOutBounce(float t) {
         return t < 0.5
             ? (1 - easeOutBounce(1 - 2 * t)) / 2

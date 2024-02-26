@@ -11,9 +11,11 @@ A collection of utils for the Raylib game library. Header only so just clone thi
 │   ├── persistent_buffer.h - Cyclic queue of persistently mapped buffers for fast transfers from/to GPU
 │   ├── spinlock.h          - Atomic spinlock, similar to std::mutex but faster for short wait times
 │   └── ubo_writer.h        - Helper to write to uniform block objects (computes offsets for you)
-├── graphics.h  - Graphics helpers
-├── math.h      - Generic math functions, should take any numeric / float type
-└── morton.h    - Morton codes (currently only for 8 bit values)
+├── camera_extra.h - More camera features
+├── easing.h       - Easing functions
+├── graphics.h     - Graphics helpers
+├── math.h         - Generic math functions, should take any numeric / float type
+└── morton.h       - Morton codes (currently only for 8 bit values)
 ```
 
 # Types:
@@ -166,6 +168,30 @@ bool none();                              // Returns if no bits are set
 std::size_t size();                       // Always returns 8 since it's 8 bits
 
 myBitset8[i].flip();                      // Flips the ith bit of bitset (implemented in reference)
+```
+
+## Camera Extra
+
+### Camera2DExtended
+
+Camera2D but with screen shake (set the `.trauma`. property, will slowly decay on `tick()`).
+
+```cpp
+class Camera2DExtended {
+public:
+    operator Camera2D();                      // Automatically casts to Camera2D
+    void tick();                              // Per frame updates
+
+    Vector2 screenToWorld(Vector2 screenPos); // Screen pos -> world pos
+    Vector2 worldToScreen(Vector2 worldPos);  // World pos -> screen pos
+    Matrix getCameraMatrix();                 // Get 2D camera matrix
+
+    Vector2 offset{0, 0};                     // Camera offset (displacement from target)
+    Vector2 target{0, 0};                     // Camera target (rotation and zoom origin)
+    float rotation = 0.0;                     // Camera rotation in degrees
+    float zoom = 1.0f;                        // Camera zoom (scaling), should be 1.0f by default
+    float trauma = 0.0f;                      // Shake, decays to 0
+}
 ```
 
 ## Easing
