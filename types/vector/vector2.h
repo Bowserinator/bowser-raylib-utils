@@ -76,7 +76,7 @@ namespace bowser_util {
 
         // Angle with other vector (from origin 0,0)
         float angle(const _baseVec2<T> &other) const {
-            const auto dot = static_cast<float>(dot(other));
+            const auto dot = static_cast<float>(this->dot(other));
             const auto det = static_cast<float>(x * other.y - y * other.x);
             return std::atan2(det, dot);
         }

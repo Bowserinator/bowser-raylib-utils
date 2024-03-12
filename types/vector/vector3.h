@@ -153,7 +153,7 @@ namespace bowser_util {
         // Returns 0 if total internal reflection would occur
         _baseVec3<T> refract(const _baseVec3<T> &normal, const float r) const {
             _baseVec3<T> out(0);
-            auto dot = dot(normal);
+            auto dot = this->dot(normal);
             float d = 1.0f - r * r * (1.0f - dot * dot);
 
             if (d >= 0.0f) {

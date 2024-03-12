@@ -6,6 +6,7 @@
 namespace bowser_util {
     class Spinlock {
     public:
+        Spinlock() {}
         Spinlock(const Spinlock &) = delete;
         Spinlock& operator=(const Spinlock&) = delete;
 
